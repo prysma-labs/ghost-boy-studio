@@ -9,7 +9,6 @@ import {
 } from "@assistant-ui/react";
 import { Thread } from "@/components/assistant-ui/elements/thread.aui";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -214,7 +213,6 @@ function Conversation({ agentId, name }: { agentId: AgentId; name: string }) {
     <section className="flex h-full min-h-0 flex-col">
       <header className="flex h-14 shrink-0 items-center gap-2 border-b-2 px-4">
         <SidebarTrigger />
-        <Separator orientation="vertical" className="h-4 data-vertical:h-4" />
         <h1 className="text-sm font-medium">{name}</h1>
         <Badge
           variant={isRunning ? "default" : "secondary"}
