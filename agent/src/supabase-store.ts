@@ -43,7 +43,7 @@ function runFrom(row: RunRow): StoredRun {
 }
 
 export class SupabaseStore implements Store {
-  constructor(private readonly supabase: SupabaseClient) {}
+  constructor(private readonly supabase: SupabaseClient<any, any, "studio">) {}
 
   async listMessages(agentId: string) {
     const { data, error } = await this.supabase
@@ -74,16 +74,19 @@ export class SupabaseStore implements Store {
       agent_id: agentId,
       status: "running",
     });
-    if (error?.code === "23505") return { ok: false as const, busy: true as const };
+    if (error?.code === "23505")
+      return { ok: false as const, busy: true as const };
     if (error) throw new Error(error.message);
 
-    const { error: messageError } = await this.supabase.from("messages").insert({
-      id: randomUUID(),
-      agent_id: agentId,
-      run_id: runId,
-      role: "user",
-      content,
-    });
+    const { error: messageError } = await this.supabase
+      .from("messages")
+      .insert({
+        id: randomUUID(),
+        agent_id: agentId,
+        run_id: runId,
+        role: "user",
+        content,
+      });
     if (messageError) {
       await this.failRun(runId, "Could not save the message.");
       throw new Error(messageError.message);
@@ -102,13 +105,15 @@ export class SupabaseStore implements Store {
     if (error) throw new Error(error.message);
     if (!data?.length) return;
 
-    const { error: messageError } = await this.supabase.from("messages").insert({
-      id: randomUUID(),
-      agent_id: agentId,
-      run_id: runId,
-      role: "assistant",
-      content,
-    });
+    const { error: messageError } = await this.supabase
+      .from("messages")
+      .insert({
+        id: randomUUID(),
+        agent_id: agentId,
+        run_id: runId,
+        role: "assistant",
+        content,
+      });
     if (messageError) {
       await this.supabase
         .from("runs")
@@ -152,8 +157,12 @@ export class SupabaseStore implements Store {
 export function createSupabaseStore() {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SECRET_KEY;
-  if (!url || !key) throw new Error("Missing SUPABASE_URL or SUPABASE_SECRET_KEY");
+  if (!url || !key)
+    throw new Error("Missing SUPABASE_URL or SUPABASE_SECRET_KEY");
   return new SupabaseStore(
-    createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } }),
+    createClient(url, key, {
+      auth: { persistSession: false, autoRefreshToken: false },
+      db: { schema: "studio" },
+    }),
   );
 }

@@ -45,7 +45,7 @@ function ThreadWelcome({ name }: { name: string }) {
     <div className="mb-6 flex flex-col px-2">
       <p className="text-2xl font-medium tracking-tight">{name}</p>
       <p className="text-muted-foreground mt-2 max-w-md text-sm">
-        Ask a question. This agent will say when it needs data it does not have.
+        Describe the piece. This agent writes from the conversation.
       </p>
     </div>
   );
@@ -64,7 +64,7 @@ function AgentSidebar({
     <Sidebar>
       <SidebarHeader className="px-4 py-4">
         <p className="font-wordmark text-primary text-3xl leading-none">
-          twosigma
+          ghost boy
         </p>
       </SidebarHeader>
       <SidebarContent>
@@ -99,7 +99,7 @@ function AgentSidebar({
 }
 
 export function ResearchApp() {
-  const [agentId, setAgentId] = useState<AgentId>("quant");
+  const [agentId, setAgentId] = useState<AgentId>("director");
   const agent = agentById(agentId)!;
 
   return (

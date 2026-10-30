@@ -33,83 +33,83 @@ async function post(url: string, body: unknown, token = secret) {
 
 test("routes each agent to its own service and keeps histories apart", async () => {
   const store = new MemoryStore();
-  const seen: Record<string, RunInput[]> = { quant: [], onchain: [] };
-  const gates = { quant: deferred(), onchain: deferred() };
+  const seen: Record<string, RunInput[]> = { director: [], designer: [] };
+  const gates = { director: deferred(), designer: deferred() };
 
-  const quant = await listen("quant", store, async (input) => {
-    seen.quant.push(input);
-    return gates.quant.promise;
+  const director = await listen("director", store, async (input) => {
+    seen.director.push(input);
+    return gates.director.promise;
   });
-  const onchain = await listen("onchain", store, async (input) => {
-    seen.onchain.push(input);
-    return gates.onchain.promise;
+  const designer = await listen("designer", store, async (input) => {
+    seen.designer.push(input);
+    return gates.designer.promise;
   });
 
   try {
-    const quantHealth = await fetch(`${quant.url}/health`).then((response) => response.json());
-    const onchainHealth = await fetch(`${onchain.url}/health`).then((response) => response.json());
-    assert.deepEqual(quantHealth, { ok: true, agentId: "quant" });
-    assert.deepEqual(onchainHealth, { ok: true, agentId: "onchain" });
+    const directorHealth = await fetch(`${director.url}/health`).then((response) => response.json());
+    const designerHealth = await fetch(`${designer.url}/health`).then((response) => response.json());
+    assert.deepEqual(directorHealth, { ok: true, agentId: "director" });
+    assert.deepEqual(designerHealth, { ok: true, agentId: "designer" });
 
-    const targets = { quant: quant.url, onchain: onchain.url };
-    const first = await post(targets.quant, {
-      content: "Signal from price?",
-      history: [{ role: "user", content: "Earlier quant note" }],
+    const targets = { director: director.url, designer: designer.url };
+    const first = await post(targets.director, {
+      content: "Board the opening?",
+      history: [{ role: "user", content: "Earlier direction" }],
     });
     assert.equal(first.status, 202);
-    const busy = await post(targets.quant, { content: "Again", history: [] });
+    const busy = await post(targets.director, { content: "Again", history: [] });
     assert.equal(busy.status, 409);
 
-    const second = await post(targets.onchain, {
-      content: "Wallet flow?",
-      history: [{ role: "assistant", content: "Earlier chain note" }],
+    const second = await post(targets.designer, {
+      content: "Sheet for the lead?",
+      history: [{ role: "assistant", content: "Earlier design note" }],
     });
     assert.equal(second.status, 202);
 
-    assert.equal(seen.quant[0]?.systemPrompt, promptFor("quant"));
-    assert.equal(seen.onchain[0]?.systemPrompt, promptFor("onchain"));
-    assert.deepEqual(seen.quant[0]?.history, [{ role: "user", content: "Earlier quant note" }]);
-    assert.deepEqual(seen.onchain[0]?.history, [
-      { role: "assistant", content: "Earlier chain note" },
+    assert.equal(seen.director[0]?.systemPrompt, promptFor("director"));
+    assert.equal(seen.designer[0]?.systemPrompt, promptFor("designer"));
+    assert.deepEqual(seen.director[0]?.history, [{ role: "user", content: "Earlier direction" }]);
+    assert.deepEqual(seen.designer[0]?.history, [
+      { role: "assistant", content: "Earlier design note" },
     ]);
-    assert.equal(seen.quant[0]?.content, "Signal from price?");
+    assert.equal(seen.director[0]?.content, "Board the opening?");
 
-    gates.onchain.resolve("No chain data was provided.");
-    await waitFor(async () => (await store.listMessages("onchain")).some((message) => message.role === "assistant"));
-    gates.quant.resolve("No price data was provided.");
-    await waitFor(async () => (await store.latestRun("quant"))?.status === "completed");
+    gates.designer.resolve("The lead sheet is written.");
+    await waitFor(async () => (await store.listMessages("designer")).some((message) => message.role === "assistant"));
+    gates.director.resolve("The opening board is written.");
+    await waitFor(async () => (await store.latestRun("director"))?.status === "completed");
 
-    const quantMessages = await store.listMessages("quant");
-    const onchainMessages = await store.listMessages("onchain");
+    const directorMessages = await store.listMessages("director");
+    const designerMessages = await store.listMessages("designer");
     assert.deepEqual(
-      quantMessages.map((message) => message.content),
-      ["Signal from price?", "No price data was provided."],
+      directorMessages.map((message) => message.content),
+      ["Board the opening?", "The opening board is written."],
     );
     assert.deepEqual(
-      onchainMessages.map((message) => message.content),
-      ["Wallet flow?", "No chain data was provided."],
+      designerMessages.map((message) => message.content),
+      ["Sheet for the lead?", "The lead sheet is written."],
     );
-    assert.equal((await store.listMessages("quant")).length, quantMessages.length);
+    assert.equal((await store.listMessages("director")).length, directorMessages.length);
   } finally {
-    quant.server.close();
-    onchain.server.close();
+    director.server.close();
+    designer.server.close();
   }
 });
 
 test("a restart marks the active run failed and a late reply does not complete it", async () => {
   const store = new MemoryStore();
   const gate = deferred();
-  const agent = await listen("fundamental", store, () => gate.promise);
+  const agent = await listen("writer", store, () => gate.promise);
   try {
-    const response = await post(agent.url, { content: "Who is the team?", history: [] });
+    const response = await post(agent.url, { content: "Write the opening scene.", history: [] });
     assert.equal(response.status, 202);
-    await store.failInterrupted("fundamental");
+    await store.failInterrupted("writer");
     gate.resolve("This should not be saved.");
     await new Promise((resolve) => setTimeout(resolve, 30));
-    const latest = await store.latestRun("fundamental");
+    const latest = await store.latestRun("writer");
     assert.equal(latest?.status, "failed");
     assert.equal(latest?.error, "Run interrupted by service restart.");
-    assert.equal((await store.listMessages("fundamental")).some((message) => message.role === "assistant"), false);
+    assert.equal((await store.listMessages("writer")).some((message) => message.role === "assistant"), false);
   } finally {
     agent.server.close();
   }
@@ -117,9 +117,9 @@ test("a restart marks the active run failed and a late reply does not complete i
 
 test("rejects missing credentials", async () => {
   const store = new MemoryStore();
-  const agent = await listen("market", store, async () => "ok");
+  const agent = await listen("musician", store, async () => "ok");
   try {
-    const response = await post(agent.url, { content: "Book?", history: [] as HistoryMessage[] }, "nope");
+    const response = await post(agent.url, { content: "Cue the title?", history: [] as HistoryMessage[] }, "nope");
     assert.equal(response.status, 401);
   } finally {
     agent.server.close();

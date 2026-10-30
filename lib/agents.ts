@@ -1,33 +1,39 @@
 export const AGENTS = [
   {
-    id: "quant",
-    name: "Quant researcher",
-    blurb: "Price, volume, and derivatives signals",
+    id: "director",
+    name: "Director",
+    blurb: "Creative direction and storyboards",
   },
   {
-    id: "onchain",
-    name: "On-chain researcher",
-    blurb: "Wallets, flows, and network usage",
+    id: "designer",
+    name: "Designer",
+    blurb: "Character sheets, prop sheets, and looks",
   },
   {
-    id: "fundamental",
-    name: "Fundamental researcher",
-    blurb: "Protocols, token economics, and teams",
+    id: "writer",
+    name: "Writer",
+    blurb: "Script and storyline",
   },
   {
-    id: "market",
-    name: "Market structure researcher",
-    blurb: "Liquidity, books, funding, and mechanics",
+    id: "musician",
+    name: "Musician",
+    blurb: "Score, songs, and sound",
+  },
+  {
+    id: "animator",
+    name: "Animator",
+    blurb: "The finished animation",
   },
 ] as const;
 
 export type AgentId = (typeof AGENTS)[number]["id"];
 
 const URL_ENV: Record<AgentId, string> = {
-  quant: "AGENT_URL_QUANT",
-  onchain: "AGENT_URL_ONCHAIN",
-  fundamental: "AGENT_URL_FUNDAMENTAL",
-  market: "AGENT_URL_MARKET",
+  director: "AGENT_URL_DIRECTOR",
+  designer: "AGENT_URL_DESIGNER",
+  writer: "AGENT_URL_WRITER",
+  musician: "AGENT_URL_MUSICIAN",
+  animator: "AGENT_URL_ANIMATOR",
 };
 
 export function isAgentId(value: string): value is AgentId {

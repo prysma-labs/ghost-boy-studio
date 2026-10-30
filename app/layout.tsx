@@ -13,8 +13,8 @@ const hiMelody = Hi_Melody({
 });
 
 export const metadata: Metadata = {
-  title: "twosigma",
-  description: "Shared research chats",
+  title: "ghost boy",
+  description: "Shared studio chats",
 };
 
 export default function RootLayout({

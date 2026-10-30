@@ -1,60 +1,62 @@
-# Research chat
+# Ghost Boy
 
-Four shared research conversations. The Next.js app on Vercel stores nothing about which VM it calls in the browser. Each agent is the same Node service on its own exe.dev VM. `AGENT_ID` picks the system prompt.
+Five shared studio conversations. The Next.js app on Vercel stores nothing about which sandbox it calls in the browser. Each agent is the same Node service on its own exe.dev sandbox. `AGENT_ID` picks the system prompt.
 
 ## Live services
 
-Supabase project `two-sigma` is in Prysma Labs (`us-west-1`). The four VMs are public on port 8000 and run the same service under systemd:
+Supabase project `two-sigma` is in Prysma Labs (`us-west-1`). Studio chats live in the `studio` schema. The `public` research tables are not used. The five sandboxes are public on port 8000:
 
-- https://quant-researcher.exe.xyz
-- https://onchain-researcher.exe.xyz
-- https://fundamental-researcher.exe.xyz
-- https://market-researcher.exe.xyz
+- https://ghostboy-director.exe.xyz
+- https://ghostboy-designer.exe.xyz
+- https://ghostboy-writer.exe.xyz
+- https://ghostboy-musician.exe.xyz
+- https://ghostboy-animator.exe.xyz
 
 The website is deployed at https://two-sigma-eight.vercel.app (Prysma Labs project `two-sigma`). Vercel Authentication is on, so opening it requires a Vercel account that can access the project. Do not commit `.env.local` or `.secrets/`.
 
-Model for all four agents: `deepseek/deepseek-v4.1-flash-1017`.
+Model for all five agents: `deepseek/deepseek-v4.1-flash-1017`.
 
 ## Secrets
 
 | Name | Where |
 | --- | --- |
-| `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | Vercel server env and each VM env file |
-| `AGENT_SHARED_SECRET` | Vercel server env and each VM env file |
+| `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | Vercel server env and each sandbox env file |
+| `AGENT_SHARED_SECRET` | Vercel server env and each sandbox env file |
 | `AGENT_URL_*` | Vercel server env only |
-| `OPENROUTER_API_KEY` | Each VM env file only |
-| `AGENT_ID`, `OPENROUTER_MODEL` | Each VM env file |
+| `OPENROUTER_API_KEY` | Each sandbox env file only |
+| `AGENT_ID`, `OPENROUTER_MODEL` | Each sandbox env file |
 
 Copy `.env.example` to `.env.local` for the Next.js app. Never commit `.env`, `.env.local`, `agent/.env`, or `.secrets/`. The secret key and the shared secret must not use a `NEXT_PUBLIC_` name.
 
-Tables have row level security and no policies, so the public Data API cannot read or write them. The servers use the secret key.
+`studio.messages` and `studio.runs` have row level security and no policies, so the public Data API cannot read or write them. The servers use the secret key.
 
 ## Local
 
 ```bash
-npm install
-npm test
-npm run dev
+pnpm install
+pnpm test
+pnpm dev
 ```
 
 ```bash
 cd agent
-npm install
-npm test
+pnpm install
+pnpm test
 ```
 
-## VMs
+## Sandboxes
 
-Listen on `127.0.0.1:8000`. exe.dev proxies that port at `https://<name>.exe.xyz`. Make the share public so Vercel can call it, and keep `AGENT_SHARED_SECRET` on the request:
+Each agent is a standalone exe.dev sandbox. Listen on `127.0.0.1:8000`. exe.dev proxies that port at `https://<name>.exe.xyz`. Make the share public so Vercel can call it, and keep `AGENT_SHARED_SECRET` on the request:
 
 ```bash
-ssh exe.dev share port <vm> 8000
-ssh exe.dev share set-public <vm>
+ssh exe.dev new --sandbox --name=<name>
+ssh exe.dev share port <name> 8000
+ssh exe.dev share set-public <name>
 ```
 
-Copy `agent/` to `/opt/research-agent`, write `/opt/research-agent/.env` as mode 600, then run `sh install.sh`. systemd unit: `agent/research-agent.service`. A restart marks that VM's running row failed.
+Copy `agent/` to `/opt/research-agent`, write `/opt/research-agent/.env` as mode 600, then run `sh install.sh`. systemd unit: `agent/research-agent.service`. A restart marks that sandbox's running row failed.
 
-Suggested VM names: `quant-researcher`, `onchain-researcher`, `fundamental-researcher`, `market-researcher`.
+Sandbox names: `ghostboy-director`, `ghostboy-designer`, `ghostboy-writer`, `ghostboy-musician`, `ghostboy-animator`.
 
 ## Vercel
 
