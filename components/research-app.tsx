@@ -63,9 +63,18 @@ function AgentSidebar({
   return (
     <Sidebar>
       <SidebarHeader className="px-4 py-4">
-        <p className="font-wordmark text-foreground text-3xl leading-none">
-          ghost boy
-        </p>
+        <div className="flex items-center gap-3">
+          <img
+            src="/logo.png"
+            alt=""
+            width={48}
+            height={48}
+            className="size-12 shrink-0 rounded-base object-cover"
+          />
+          <p className="font-wordmark text-foreground text-3xl leading-none">
+            ghost boy
+          </p>
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
