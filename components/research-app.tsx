@@ -63,7 +63,7 @@ function AgentSidebar({
   return (
     <Sidebar>
       <SidebarHeader className="px-4 py-4">
-        <p className="font-wordmark text-primary text-3xl leading-none">
+        <p className="font-wordmark text-foreground text-3xl leading-none">
           ghost boy
         </p>
       </SidebarHeader>
@@ -203,7 +203,7 @@ function Conversation({ agentId, name }: { agentId: AgentId; name: string }) {
 
   return (
     <section className="flex h-full min-h-0 flex-col">
-      <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
+      <header className="flex h-14 shrink-0 items-center gap-2 border-b-2 px-4">
         <SidebarTrigger />
         <Separator orientation="vertical" className="h-4 data-vertical:h-4" />
         <h1 className="text-sm font-medium">{name}</h1>

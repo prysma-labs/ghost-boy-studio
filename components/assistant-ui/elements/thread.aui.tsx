@@ -227,8 +227,8 @@ const ThreadRoot: FC<{ isEmpty: boolean; autoFocus: boolean }> = ({
       className="aui-root aui-thread-root bg-background @container flex h-full flex-col"
       style={{
         ["--thread-max-width" as string]: "44rem",
-        ["--composer-bg" as string]: "var(--card)",
-        ["--composer-radius" as string]: "1rem",
+        ["--composer-bg" as string]: "var(--secondary-background)",
+        ["--composer-radius" as string]: "5px",
         ["--composer-padding" as string]: "8px",
       }}
     >
@@ -533,7 +533,7 @@ const Composer: FC<{ autoFocus: boolean }> = ({ autoFocus }) => {
         render={
           <div
             data-slot="aui_composer-shell"
-            className="border-border focus-within:border-ring data-[dragging=true]:border-ring flex w-full cursor-text flex-col gap-2 rounded-(--composer-radius) border bg-(--composer-bg) p-(--composer-padding) transition-[border-color] data-[dragging=true]:border-dashed data-[dragging=true]:bg-[color-mix(in_oklab,var(--color-accent)_50%,var(--color-background))]"
+            className="border-border focus-within:border-border data-[dragging=true]:border-border flex w-full cursor-text flex-col gap-2 rounded-(--composer-radius) border-2 bg-(--composer-bg) p-(--composer-padding) shadow-shadow transition-all data-[dragging=true]:border-dashed data-[dragging=true]:bg-[color-mix(in_oklab,var(--color-accent)_50%,var(--color-background))]"
           />
         }
       >
